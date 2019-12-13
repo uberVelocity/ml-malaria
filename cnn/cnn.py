@@ -75,7 +75,7 @@ for folder in folders:
 print(loaded_images.shape)
 print(loaded_labels.shape)
 
-
+# TODO: Change train_test_split to K-fold cross-validation (k=10) for better generalization.
 X_train, X_test, y_train, y_test = train_test_split(loaded_images, loaded_labels, test_size=0.33, random_state=42)
 
 print(len(X_train))
