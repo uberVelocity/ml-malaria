@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 if __name__ == "__main__":
-    dataset = os.environ["HOME"] + "/dataset"
+    dataset = os.environ["HOME"] + "/Documents/University/roboticsAI/recognition/cnn/augmented_dataset/dataset"
     folders = os.listdir(dataset)
     for folder in folders:
         folderName = folder
