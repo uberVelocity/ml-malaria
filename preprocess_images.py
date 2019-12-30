@@ -29,7 +29,8 @@ if __name__ == "__main__":
 
                     # preprocess the image
                     image = cv2.imread(file_address, cv2.IMREAD_COLOR)
-                    image = cv2.resize(image, (config.resize_to[0], config.resize_to[1]), interpolation=cv2.INTER_AREA)
+                    image = cv2.resize(image, (config.scaled_size[0], config.scaled_size[1]),
+                                       interpolation=cv2.INTER_AREA)
                     image = np.true_divide(image, 255)
 
                     cv2.imwrite(save_address + 'normalized.png', image)

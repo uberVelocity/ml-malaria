@@ -11,7 +11,9 @@ def create_model():
     Creates CNN with three convolutional layers and two output classes
     """
     model = models.Sequential()
-    model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(config[1], config[0], 3)))
+
+    model.add(layers.Conv2D(32, (3, 3), activation='relu',
+                            input_shape=(config.scaled_size[1], config.scaled_size[0], 3)))
     model.add(layers.MaxPooling2D((2, 2)))
     model.add(layers.Conv2D(64, (3, 3), activation='relu'))
     model.add(layers.MaxPooling2D((2, 2)))
@@ -26,49 +28,45 @@ def create_model():
     return model
 
 
-def create_train_and_test():
+def load_images():
     """
-    Loads processed images from the dataset location and generates train and test sets.
+    Loads processed images from the .npy file at the configured location.
     """
-    # Load data from .npy files
-    dataset = os.environ["HOME"] + config.image_location
-    folders = os.listdir(dataset)
-    labels = []
-    loaded_images = np.array([])
-    loaded_labels = np.array([])
+    dataset_path = os.environ["HOME"] + config.image_location
+    folders = os.listdir(dataset_path)
+
+    image_arr = np.array([])
+    label_arr = np.array([])
     counter = 0
-    label_dict = dict()
+
     for folder in folders:
         folder_name = folder
-        label_dict[counter] = folder_name
-        folder = os.path.join(dataset, folder)
+        folder = os.path.join(dataset_path, folder)
 
         if os.path.isdir(folder):
             save_folder = os.path.join(folder, 'augmented')
             folder_address = save_folder + '/' + folder_name + '-data.npy'
-            labels.append(counter)
             loaded = np.load(folder_address)
+
             if counter == 0:
-                loaded_images = loaded
+                image_arr = loaded
             else:
-                loaded_images = np.concatenate((loaded_images, loaded), axis=0)
+                image_arr = np.concatenate((image_arr, loaded), axis=0)
+
             for label in range(0, len(loaded)):
-                loaded_labels = np.append(loaded_labels, counter)
+                label_arr = np.append(label_arr, counter)
+
             print('loaded ', len(loaded))
             counter += 1
             print(counter)
 
-    # Sanity check
-    print(loaded_images.shape)
-    print(loaded_labels)
-    print(label_dict)
-
-    return train_test_split(loaded_images, loaded_labels, test_size=0.33, random_state=42)
+    return image_arr, label_arr
 
 
 if __name__ == '__main__':
     print("Loading images...")
-    x_train, x_test, y_train, y_test = create_train_and_test()
+    images, labels = load_images()
+    x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.33, random_state=42)
     print(f"Images loaded! x_train: f{len(x_train)}, x_test: f{len(x_test)}")
     print(f"(y_train: {len(y_train)}, y_test: {len(y_test)})")
 
