@@ -37,7 +37,7 @@ def load_images():
 
     image_arr = np.array([])
     label_arr = np.array([])
-    counter = 0
+    class_label = 0
 
     for folder in folders:
         folder_name = folder
@@ -48,17 +48,17 @@ def load_images():
             folder_address = save_folder + '/' + folder_name + '-data.npy'
             loaded = np.load(folder_address)
 
-            if counter == 0:
+            if class_label == 0:
                 image_arr = loaded
             else:
                 image_arr = np.concatenate((image_arr, loaded), axis=0)
 
             for label in range(0, len(loaded)):
-                label_arr = np.append(label_arr, counter)
+                label_arr = np.append(label_arr, class_label)
 
             print('loaded ', len(loaded))
-            counter += 1
-            print(counter)
+            class_label += 1
+            print(class_label)
 
     return image_arr, label_arr
 
