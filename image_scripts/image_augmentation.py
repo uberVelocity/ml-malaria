@@ -2,7 +2,7 @@ import cv2
 import os
 import numpy as np
 
-# global params
+# global params - make sure these are correct!
 image_location = "/Documents/projects/ml-malaria/cell_images"
 resize_to = [80, 50]
 
@@ -29,9 +29,10 @@ if __name__ == "__main__":
 
                 if os.path.isfile(file_address) and os.path.splitext(file_name)[-1].lower() == ".png":
                     save_address = save_folder_path + "/" + folder + "-" + os.path.splitext(file_name)[0]
+
+                    # preprocess the image
                     image = cv2.imread(file_address, cv2.IMREAD_COLOR)
                     image = cv2.resize(image, (resize_to[0], resize_to[1]), interpolation=cv2.INTER_AREA)
-
                     image = np.true_divide(image, 255)
 
                     cv2.imwrite(save_address + 'normalized.png', image)
