@@ -1,16 +1,13 @@
 import cv2
 import os
 import numpy as np
-
-# global params - make sure these are correct!
-image_location = "/Documents/projects/ml-malaria/cell_images"
-resize_to = [80, 50]
+import config
 
 """
 Collects images from folders and produces normalized dataset as .npy files.
 """
 if __name__ == "__main__":
-    dataset_path = os.environ["HOME"] + image_location
+    dataset_path = os.environ["HOME"] + config.image_location
     folders = os.listdir(dataset_path)
 
     for folder in folders:
@@ -32,7 +29,7 @@ if __name__ == "__main__":
 
                     # preprocess the image
                     image = cv2.imread(file_address, cv2.IMREAD_COLOR)
-                    image = cv2.resize(image, (resize_to[0], resize_to[1]), interpolation=cv2.INTER_AREA)
+                    image = cv2.resize(image, (config.resize_to[0], config.resize_to[1]), interpolation=cv2.INTER_AREA)
                     image = np.true_divide(image, 255)
 
                     cv2.imwrite(save_address + 'normalized.png', image)
