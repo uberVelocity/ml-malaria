@@ -6,31 +6,21 @@ from PIL import Image
 import numpy as np 
 import cv2 
 
-entries = os.listdir(os.getcwd()+'/malaria') 
-train_json = os.getcwd()+'/malaria/training.json' 
-with open(train_json, 'r') as file: 
-    data = file.read()
+entries = os.getcwd()+'/cell_images'
 
-train_data = json.loads(data)
-
+parasitized_entries = os.listdir(entries+'/Parasitized')
+uninfected_entries = os.listdir(entries+'/Uninfected') 
 #global vairable: 
 number_bin = 4 # in image description 
 from sklearn.preprocessing import normalize
 
-def imageDescriptor(im, min, max):
+def imageDescriptor(im):
     out_hist = [] #historgram
-
-    left = min['c']
-    top = min['r']
-    right= max['c']
-    bottom =max['r']
-    im_box = im.crop((left, top, right, bottom))
-    height, width =im_box.size
+    height, width =im.size
     partial_h = int(height/number_bin) 
     partial_w = int(width/number_bin) 
-    im_new = im_box
-    #suft image descriptor 
-
+    im_new = im
+    #AKAZE image descriptor 
     kaze = cv2.AKAZE_create() 
     kaze.setThreshold(40) 
     gray = cv2.cvtColor(np.float32(im_new), cv2.COLOR_BGR2GRAY)
@@ -62,67 +52,30 @@ def imageDescriptor(im, min, max):
     return out_hist
 
 
-def createDataFrame(train_data): 
-    out = pd.DataFrame(columns=['image','label','infection', 'histogram'])
-    total_counter = 0
-    not_infected =0
-    counter =0 
-    data_inf=0
+def createDataFrame(): 
+    out = pd.DataFrame(columns=['label','histogram'])
+    label = 'parasitized' 
+    for index, entry in zip(range(20),parasitized_entries): 
+        im = Image.open(os.getcwd()+'/cell_images/Parasitized/'+entry)
+        hist = imageDescriptor(im)
+        out.loc[len(out)] = [label,hist] 
 
-    flag ='init'
-    for index, item in zip(range(2), train_data):  
-    #for item in train_data:   
-        pathimage= item['image']['pathname'] 
-        im = Image.open(os.getcwd()+'/malaria'+pathimage)
+    label= 'Uninfected'
+    for index, entry in zip(range(20), uninfected_entries): 
+        im = Image.open(os.getcwd()+'/cell_images/Uninfected/'+entry)
+        hist = imageDescriptor(im)
+        out.loc[len(out)] = [label,hist] 
 
-        for obj in item['objects']:
-            infected = 'yes'
-            label = obj['category'] 
-            total_counter +=1
-
-            if obj['category']=='difficult': 
-                total_counter-=1 
-                continue
-         
-            if obj['category'] == 'red blood cell': 
-                infected = 'no'
-                not_infected+=1
-            elif obj['category'] == 'leukocyte': 
-                infected = 'no'
-                not_infected+=1
-            
-            # historgram = imageDescriptor(im, obj['bounding_box']['minimum'], obj['bounding_box']['maximum'])
-            # out.loc[len(out)]= [pathimage, label, infected, historgram]
-
-            print(obj['category'])
-            
-            if flag == 'addedInfected':
-                historgram = imageDescriptor(im, obj['bounding_box']['minimum'], obj['bounding_box']['maximum'])
-                out.loc[len(out)]= [pathimage, label, infected, historgram]
-                flag = 'notyet'
-                counter+=1 
-
-            if label != 'red blood cell' or label!= 'leukocyte': 
-                #create image desciptor 1) historgram 
-                flag = 'addedInfected'
-                historgram = imageDescriptor(im, obj['bounding_box']['minimum'], obj['bounding_box']['maximum'])
-                out.loc[len(out)]= [pathimage, label, infected, historgram]
-                data_inf+=1 
-                counter+=1 
-    
-    # print("% of data sample", data_inf/counter)
     tags = out['histogram'].apply(pd.Series)
     tags = tags.rename(columns = lambda x : 'hist_' + str(x)) 
     out = pd.concat([out[:], tags[:]], axis=1)
     out = out.drop(columns=['histogram'], axis=1)
     out = out.fillna(0)
-    print("% of not infected", not_infected/total_counter, 'data shape',out.shape )
     out.to_csv("malaria.csv")
-    exit()
     return out
 
 
-malaria_data = createDataFrame(train_data) 
+malaria_data = createDataFrame() 
 print(malaria_data)
 ### FROM ONLINE ######### 
 
@@ -136,7 +89,7 @@ labels = np.array(malaria_data['label'])
 
 # Remove the labels from the features
 # axis 1 refers to the columns
-features= malaria_data.drop(columns=['image','label','infection'], axis = 1)
+features= malaria_data.drop(columns=['label'], axis = 1)
 
 # Saving feature names for later use
 feature_list = list(features.columns)
