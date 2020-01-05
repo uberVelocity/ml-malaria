@@ -5,14 +5,19 @@ import pandas as pd
 from PIL import Image 
 import numpy as np 
 import cv2 
+import config
+from sklearn.preprocessing import normalize
+import pandas as pd
+from sklearn.model_selection import train_test_split
 
-entries = os.getcwd()+'/cell_images'
+
+entries = os.environ["HOME"] + config.image_location
 
 parasitized_entries = os.listdir(entries+'/Parasitized')
 uninfected_entries = os.listdir(entries+'/Uninfected') 
 #global vairable: 
 number_bin = 4 # in image description 
-from sklearn.preprocessing import normalize
+number_datasamples= 50  
 
 def imageDescriptor(im):
     out_hist = [] #historgram
@@ -21,12 +26,12 @@ def imageDescriptor(im):
     partial_w = int(width/number_bin) 
     im_new = im
     #AKAZE image descriptor 
-    kaze = cv2.AKAZE_create() 
-    kaze.setThreshold(40) 
-    gray = cv2.cvtColor(np.float32(im_new), cv2.COLOR_BGR2GRAY)
-    kp, des = kaze.detectAndCompute(gray, None)
-    des = np.array(des) 
-    des = des.ravel() 
+    # kaze = cv2.AKAZE_create() 
+    # kaze.setThreshold(5) 
+    # gray = cv2.cvtColor(np.float32(im_new), cv2.COLOR_BGR2GRAY)
+    # kp, des = kaze.detectAndCompute(gray, None)
+    # des = np.array(des) 
+    # des = des.ravel() 
     #print("des",des)
     counter =0 
     new_pix=im_new.load()
@@ -47,7 +52,7 @@ def imageDescriptor(im):
             out_hist.append(r)
             out_hist.append(g)
             out_hist.append(b)
-    out_hist+=list(des)
+    # out_hist+=list(des)
     #print(out_hist)
     return out_hist
 
@@ -55,13 +60,13 @@ def imageDescriptor(im):
 def createDataFrame(): 
     out = pd.DataFrame(columns=['label','histogram'])
     label = 'parasitized' 
-    for index, entry in zip(range(20),parasitized_entries): 
+    for index, entry in zip(range(int(number_datasamples/2)),parasitized_entries): 
         im = Image.open(os.getcwd()+'/cell_images/Parasitized/'+entry)
         hist = imageDescriptor(im)
         out.loc[len(out)] = [label,hist] 
 
     label= 'Uninfected'
-    for index, entry in zip(range(20), uninfected_entries): 
+    for index, entry in zip(range(int(number_datasamples/2)), uninfected_entries): 
         im = Image.open(os.getcwd()+'/cell_images/Uninfected/'+entry)
         hist = imageDescriptor(im)
         out.loc[len(out)] = [label,hist] 
@@ -77,32 +82,13 @@ def createDataFrame():
 
 malaria_data = createDataFrame() 
 print(malaria_data)
-### FROM ONLINE ######### 
 
-# Pandas is used for data manipulation
-import pandas as pd
-
-# Use numpy to convert to arrays
-
-# Labels are the values we want to predict
 labels = np.array(malaria_data['label'])
-
-# Remove the labels from the features
-# axis 1 refers to the columns
 features= malaria_data.drop(columns=['label'], axis = 1)
-
-# Saving feature names for later use
 feature_list = list(features.columns)
-
-# Convert to numpy array
 features = np.array(features)
-
 print(features) 
 
-# Using Skicit-learn to split data into training and testing sets
-from sklearn.model_selection import train_test_split
-
-# Split the data into training and testing sets
 train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.5,random_state = 21)
 
 print('Training Features Shape:', train_features.shape)
@@ -110,26 +96,51 @@ print('Training Labels Shape:', train_labels.shape)
 print('Testing Features Shape:', test_features.shape)
 print('Testing Labels Shape:', test_labels.shape)
 
-# Import the model we are using
+
 from sklearn.ensemble import RandomForestClassifier
 
-# Instantiate model 
+
 rf = RandomForestClassifier(n_estimators= 100, random_state=42)
-
-# Train the model on training data
-rf.fit(train_features, train_labels);
-
 rf_new = RandomForestClassifier(n_estimators = 100, criterion = 'mse', max_depth = None, 
                                min_samples_split = 2, min_samples_leaf = 1)
 
-# Use the forest's predict method on the test data
+
+rf.fit(train_features, train_labels);
 predictions = rf.predict(test_features)
 
-# Calculate the absolute errors
 from sklearn import metrics 
 
 errors = metrics.accuracy_score(test_labels, predictions)
+print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
+# Calculate mean absolute percentage error (MAPE)
+mape = 100 * (errors / test_labels.shape[0])
+accuracy = 100 - np.mean(mape)
+print('Accuracy:', round(accuracy, 2), '%.')
+
+
+from sklearn.tree import export_graphviz
+import pydot
+
+def draw_tree(rf, feature_list=feature_list): 
+    # Pull out one tree from the forest
+    tree = rf.estimators_[5]
+
+    export_graphviz(tree, out_file = 'tree.dot', feature_names = feature_list, rounded = True, precision = 1)
+    (graph, ) = pydot.graph_from_dot_file('tree.dot')
+    graph.write_png('tree.png'); 
+
+    print('The depth of this tree is:', tree.tree_.max_depth)
+
+draw_tree(rf)
+
+print("###########Smaller tree")
+# Limit depth of tree to 2 levels
+rf_small = RandomForestClassifier(n_estimators=10,random_state=42)
+rf_small.fit(train_features, train_labels)
+
+predictions = rf_small.predict(test_features)
+errors = metrics.accuracy_score(test_labels, predictions)
 # Print out the mean absolute error (mae)
 print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
@@ -140,38 +151,10 @@ mape = 100 * (errors / test_labels.shape[0])
 accuracy = 100 - np.mean(mape)
 print('Accuracy:', round(accuracy, 2), '%.')
 
-# Import tools needed for visualization
-from sklearn.tree import export_graphviz
-import pydot
+draw_tree(rf_small)
 
-# Pull out one tree from the forest
-tree = rf.estimators_[5]
 
-# Export the image to a dot file
-export_graphviz(tree, out_file = 'tree.dot', feature_names = feature_list, rounded = True, precision = 1)
-
-# Use dot file to create a graph
-(graph, ) = pydot.graph_from_dot_file('tree.dot')
-
-# Write graph to a png file
-graph.write_png('tree.png'); 
-
-print('The depth of this tree is:', tree.tree_.max_depth)
-
-# Limit depth of tree to 2 levels
-rf_small = RandomForestClassifier(n_estimators=10,random_state=42)
-rf_small.fit(train_features, train_labels)
-
-# Extract the small tree
-tree_small = rf_small.estimators_[5]
-
-# Save the tree as a png image
-export_graphviz(tree_small, out_file = 'small_tree.dot', feature_names = feature_list, rounded = True, precision = 1)
-
-(graph, ) = pydot.graph_from_dot_file('small_tree.dot')
-
-graph.write_png('small_tree.png')
-
+print("###########Important features")
 # Get numerical feature importances
 importances = list(rf.feature_importances_)
 
@@ -188,7 +171,7 @@ feature_importances = sorted(feature_importances, key = lambda x: x[1], reverse 
 rf_most_important = RandomForestClassifier(n_estimators= 10, random_state=42)
 
 # Extract the two most important features
-important_indices = [feature_list.index('hist_5'), feature_list.index('hist_3')]
+important_indices = [feature_list.index('hist_42'), feature_list.index('hist_43')]
 train_important = train_features[:, important_indices]
 test_important = test_features[:, important_indices]
 
@@ -208,6 +191,7 @@ accuracy = 100 - mape
 
 print('Accuracy:', round(accuracy, 2), '%.')
 
+draw_tree(rf_most_important, important_indices)
 
 # Import matplotlib for plotting 
 import matplotlib.pyplot as plt
