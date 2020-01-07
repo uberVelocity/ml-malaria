@@ -1,5 +1,6 @@
 import os
 import numpy as np
+import matplotlib.pyplot as plt
 from tensorflow.keras import datasets, layers, models
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
@@ -71,5 +72,4 @@ model.compile(optimizer='adam',
 
 # ### 4. Training the model
 history = model.fit(X_train, y_train, epochs=10, 
-                    validation_data=(X_test, y_test))
-
+                    validation_data=(X_test, y_test), batch_size = 10)

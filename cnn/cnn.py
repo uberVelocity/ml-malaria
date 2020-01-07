@@ -38,12 +38,11 @@ from tensorflow.keras import datasets, layers, models
 # print(train_images.shape)
 # print(len(train_images))
 
-#(img, class)
+# (img, class)
 
 ### 1. Data definition
 # Define class labels
 labels = []
-loadedData = []
 dataset = os.environ["HOME"] + "/Documents/University/roboticsAI/recognition/cnn/augmented_dataset/dataset"
 folders = os.listdir(dataset)
 loaded_images = np.array([])
