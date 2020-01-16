@@ -91,8 +91,6 @@ train_features, test_features, train_labels, test_labels = train_test_split(feat
                                                                             random_state=21)
 
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
-rf_new = RandomForestClassifier(n_estimators=100, criterion='mse', max_depth=None,
-                                min_samples_split=2, min_samples_leaf=1)
 
 rf.fit(train_features, train_labels)
 predictions = rf.predict(test_features)
