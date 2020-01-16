@@ -1,23 +1,23 @@
-import json 
-import os 
-from sklearn.utils.multiclass import unique_labels 
-import pandas as pd 
-from PIL import Image 
-import numpy as np 
-import cv2 
+import os
+import pydot
+import numpy as np
 import config
-from sklearn.preprocessing import normalize
 import pandas as pd
+
+from PIL import Image
 from sklearn.model_selection import train_test_split
+from sklearn.tree import export_graphviz
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import metrics
 
 
 entries = os.environ["HOME"] + config.image_location
-
 parasitized_entries = os.listdir(entries+'/Parasitized')
 uninfected_entries = os.listdir(entries+'/Uninfected') 
-#global vairable: 
+# global vairable
 number_bin = 4 # in image description 
 number_datasamples= 50  
+
 
 def imageDescriptor(im):
     out_hist = [] #historgram
@@ -25,15 +25,6 @@ def imageDescriptor(im):
     partial_h = int(height/number_bin) 
     partial_w = int(width/number_bin) 
     im_new = im
-    #AKAZE image descriptor 
-    # kaze = cv2.AKAZE_create() 
-    # kaze.setThreshold(5) 
-    # gray = cv2.cvtColor(np.float32(im_new), cv2.COLOR_BGR2GRAY)
-    # kp, des = kaze.detectAndCompute(gray, None)
-    # des = np.array(des) 
-    # des = des.ravel() 
-    #print("des",des)
-    counter =0 
     new_pix=im_new.load()
     for i in range(number_bin): 
         for j in range(number_bin): 
@@ -96,19 +87,12 @@ print('Training Labels Shape:', train_labels.shape)
 print('Testing Features Shape:', test_features.shape)
 print('Testing Labels Shape:', test_labels.shape)
 
-
-from sklearn.ensemble import RandomForestClassifier
-
-
 rf = RandomForestClassifier(n_estimators= 100, random_state=42)
 rf_new = RandomForestClassifier(n_estimators = 100, criterion = 'mse', max_depth = None, 
                                min_samples_split = 2, min_samples_leaf = 1)
 
-
-rf.fit(train_features, train_labels);
+rf.fit(train_features, train_labels)
 predictions = rf.predict(test_features)
-
-from sklearn import metrics 
 
 errors = metrics.accuracy_score(test_labels, predictions)
 print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
@@ -119,9 +103,6 @@ accuracy = 100 - np.mean(mape)
 print('Accuracy:', round(accuracy, 2), '%.')
 
 
-from sklearn.tree import export_graphviz
-import pydot
-
 def draw_tree(rf, feature_list=feature_list): 
     # Pull out one tree from the forest
     tree = rf.estimators_[5]
@@ -131,6 +112,7 @@ def draw_tree(rf, feature_list=feature_list):
     graph.write_png('tree.png'); 
 
     print('The depth of this tree is:', tree.tree_.max_depth)
+
 
 draw_tree(rf)
 
@@ -192,8 +174,3 @@ accuracy = 100 - mape
 print('Accuracy:', round(accuracy, 2), '%.')
 
 draw_tree(rf_most_important, important_indices)
-
-# Import matplotlib for plotting 
-import matplotlib.pyplot as plt
-
-
