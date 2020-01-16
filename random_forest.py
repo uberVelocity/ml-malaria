@@ -52,13 +52,13 @@ def createDataFrame():
     out = pd.DataFrame(columns=['label','histogram'])
     label = 'parasitized' 
     for index, entry in zip(range(int(number_datasamples/2)),parasitized_entries): 
-        im = Image.open(os.getcwd()+'/cell_images/Parasitized/'+entry)
+        im = Image.open(entries+'/Parasitized/'+entry)
         hist = imageDescriptor(im)
         out.loc[len(out)] = [label,hist] 
 
     label= 'Uninfected'
     for index, entry in zip(range(int(number_datasamples/2)), uninfected_entries): 
-        im = Image.open(os.getcwd()+'/cell_images/Uninfected/'+entry)
+        im = Image.open(entries+'/Uninfected/'+entry)
         hist = imageDescriptor(im)
         out.loc[len(out)] = [label,hist] 
 
