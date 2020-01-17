@@ -1,22 +1,26 @@
 import os
-import config
 import numpy as np
+import config
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
 
-def feature_scaling(X_train, X_test):
-	scaler = StandardScaler()
-	scaler.fit(X_train)
 
-	X_train = scaler.transform(X_train)
-	X_test = scaler.transform(X_test)
-	
+def feature_scaling(X_train, X_test):
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+
+
 def load_images():
     """
     Loads processed images from the .npy file at the configured location.
     """
+
     dataset_path = os.environ["HOME"] + config.image_location
     folders = os.listdir(dataset_path)
 
@@ -46,7 +50,8 @@ def load_images():
             print(class_label)
 
     return image_arr, label_arr
-	
+
+
 if __name__ == '__main__':
     print("Loading images...")
     k = 2
@@ -59,15 +64,11 @@ if __name__ == '__main__':
     classifier = KNeighborsClassifier(k)
 
     print("Commencing training...")
-    scaler = StandardScaler()
-    scaler.fit(x_train)
-    x_train = scaler.transform(x_train)
-    x_test = scaler.transform(x_test)
     classifier.fit(x_train, y_train)
-    
+
     print("Predicting...")
     y_pred = classifier.predict(x_test)
-	
+
     print("Evaluating...")
     print(confusion_matrix(y_test, y_pred))
     print(classification_report(y_test, y_pred))
