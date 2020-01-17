@@ -1,3 +1,7 @@
+import os
+import numpy as np
+import config
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
@@ -11,10 +15,12 @@ def feature_scaling(X_train, X_test):
     X_train = scaler.transform(X_train)
     X_test = scaler.transform(X_test)
 
+
 def load_images():
     """
     Loads processed images from the .npy file at the configured location.
     """
+
     dataset_path = os.environ["HOME"] + config.image_location
     folders = os.listdir(dataset_path)
 
@@ -44,6 +50,7 @@ def load_images():
             print(class_label)
 
     return image_arr, label_arr
+
 
 if __name__ == '__main__':
     print("Loading images...")
