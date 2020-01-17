@@ -62,6 +62,19 @@ def create_data_frame():
     return out
 
 
+def train_random_forest(forest):
+    forest.fit(train_features, train_labels)
+    predictions = forest.predict(test_features)
+    errors = metrics.accuracy_score(test_labels, predictions)
+    print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+    # Calculate mean absolute percentage error (MAPE)
+    mape = 100 * (errors / test_labels.shape[0])
+    accuracy = 100 - np.mean(mape)
+    print('Accuracy:', round(accuracy, 2), '%.')
+
+    draw_tree(forest, feature_list)
+
+
 def draw_tree(rf, feature_list):
     # Pull out one tree from the forest
     tree = rf.estimators_[5]
@@ -76,7 +89,6 @@ def draw_tree(rf, feature_list):
 entries = os.environ["HOME"] + config.image_location
 parasitized_entries = os.listdir(entries + '/Parasitized')
 uninfected_entries = os.listdir(entries + '/Uninfected')
-# global vairable
 number_bin = 4  # in image description
 number_datasamples = 50
 
@@ -91,38 +103,11 @@ train_features, test_features, train_labels, test_labels = train_test_split(feat
                                                                             random_state=21)
 
 rf = RandomForestClassifier(n_estimators=100, random_state=42)
-
-rf.fit(train_features, train_labels)
-predictions = rf.predict(test_features)
-
-errors = metrics.accuracy_score(test_labels, predictions)
-print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
-
-# Calculate mean absolute percentage error (MAPE)
-mape = 100 * (errors / test_labels.shape[0])
-accuracy = 100 - np.mean(mape)
-print('Accuracy:', round(accuracy, 2), '%.')
-
-draw_tree(rf, feature_list)
+train_random_forest(rf)
 
 print("###########Smaller tree")
-# Limit depth of tree to 2 levels
-rf_small = RandomForestClassifier(n_estimators=10, random_state=42)
-rf_small.fit(train_features, train_labels)
-
-predictions = rf_small.predict(test_features)
-errors = metrics.accuracy_score(test_labels, predictions)
-# Print out the mean absolute error (mae)
-print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
-
-# Calculate mean absolute percentage error (MAPE)
-mape = 100 * (errors / test_labels.shape[0])
-
-# Calculate and display accuracy
-accuracy = 100 - np.mean(mape)
-print('Accuracy:', round(accuracy, 2), '%.')
-
-draw_tree(rf_small, feature_list)
+rf_small = RandomForestClassifier(n_estimators=10, random_state=42)  # Limit depth of tree to 2 levels
+train_random_forest(rf_small)
 
 print("###########Important features")
 # Get numerical feature importances
