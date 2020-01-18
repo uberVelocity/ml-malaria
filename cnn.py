@@ -12,6 +12,7 @@ def create_model():
     """
     model = models.Sequential()
 
+    # Convolutional layers
     model.add(layers.Conv2D(32, (3, 3), activation='relu',
                             input_shape=(config.scaled_size[1], config.scaled_size[0], 3)))
     model.add(layers.MaxPooling2D((2, 2)))
@@ -23,6 +24,7 @@ def create_model():
     model.add(layers.Flatten())
     model.add(layers.Dense(64, activation='relu'))
 
+    # Output layer
     model.add(layers.Dense(2, activation='softmax'))
 
     return model
