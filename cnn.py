@@ -66,19 +66,24 @@ def load_images():
 if __name__ == '__main__':
     print("Loading images...")
     images, labels = load_images()
-    x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.33, random_state=42)
-    print(f"Images loaded! x_train: f{len(x_train)}, x_test: f{len(x_test)}")
-    print(f"(y_train: {len(y_train)}, y_test: {len(y_test)})")
+    # print(f"Images loaded! x_train: f{len(x_train)}, x_test: f{len(x_test)}")
+    # print(f"(y_train: {len(y_train)}, y_test: {len(y_test)})")
 
-    print("\n Creating model...")
-    model = create_model()
-    model.summary()
-
-    print("Compiling...")
-    model.compile(optimizer='adam',
-                  loss='sparse_categorical_crossentropy',
-                  metrics=['accuracy'])
-
-    print("Compiling done! Commencing training...")
-    history = model.fit(x_train, y_train, epochs=10,
-                        validation_data=(x_test, y_test))
+    n_folds = 10
+    BATCH_SIZE = 128
+    val_accuracy = [None] * 10
+    for i in range(n_folds):
+        print('Training on fold ', i + 1)
+        print("\n Creating model...")
+        model = create_model()
+        model.summary()
+        
+        print("Compiling...")
+        model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        print("Compiling done! Commencing training...")
+        
+        x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, random_state = i)
+        val_accuracy[i] = model.fit(x_train, y_train, epochs=10, batch_size=BATCH_SIZE,
+                            validation_data=(x_test, y_test))
+    print('validation accuracies: ', val_accuracy)
+    print('mean accuracy: ', mean(val_accuracy))
