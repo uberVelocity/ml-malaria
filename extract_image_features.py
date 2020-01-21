@@ -9,6 +9,15 @@ Collects images from folders and produces normalized dataset as .npy files.
 """
 
 
+def load_image_data():
+    # Wrapper for loading data
+    raw_images = np.load('raw_images.npy')
+    features = np.load('features.npy')
+    labels = np.load('labels.npy')
+
+    return raw_images, features, labels
+
+
 def image_to_feature_vector(image, size=(32, 32)):
     # resize the image to a fixed size, then flatten the image into
     # a list of raw pixel intensities
@@ -69,13 +78,6 @@ def extract_features():
     raw_images = np.array(raw_images)
     features = np.array(features)
     labels = np.array(labels)
-
-    return raw_images, features, labels
-
-
-if __name__ == '__main__':
-    # Preprocess image data and store it for later use.
-    raw_images, features, labels = extract_features()
 
     np.save('raw_images.npy', raw_images)
     np.save('features.npy', features)
