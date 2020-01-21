@@ -4,6 +4,8 @@ from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
 from data_wrappers import load_image_data
 
+k = 4
+
 _, features, labels = load_image_data()  # Images are not used, only features of images
 kf = KFold(n_splits=10, shuffle=True)  # Set values for K-Fold
 
@@ -19,7 +21,7 @@ for train_index, test_index in kf.split(labels):
     train_labels, test_labels = labels[train_index], labels[test_index]
 
     # Training classifier
-    knn = KNeighborsClassifier(2)
+    knn = KNeighborsClassifier(k)
     knn.fit(train_features, train_labels)
 
     # Testing
