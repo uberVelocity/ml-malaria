@@ -3,7 +3,7 @@ import config
 
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import datasets, layers, models
-from load_images import load_images
+from data_processing_wrappers import load_images
 
 
 def create_model():

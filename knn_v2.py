@@ -5,7 +5,7 @@ import config
 import os
 from scipy import stats
 from sklearn.model_selection import cross_val_score, GridSearchCV, KFold
-from load_images import load_images
+from data_processing_wrappers import load_images
 
 
 # Import KNN classifier from sklearn

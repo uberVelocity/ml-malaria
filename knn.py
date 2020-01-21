@@ -2,7 +2,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import classification_report, confusion_matrix
-from load_images import load_images
+from data_processing_wrappers import load_images
 
 
 def feature_scaling(X_train, X_test):
