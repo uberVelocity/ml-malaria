@@ -2,6 +2,8 @@ import os
 import pydot
 import numpy as np
 import config
+import data_wrappers 
+from data_wrappers import load_image_data
 import pandas as pd
 
 from PIL import Image
@@ -77,7 +79,7 @@ def train_random_forest(train_features, test_features, train_labels, test_labels
     accuracy = 100 - np.mean(mape)
     print('Accuracy:', round(accuracy, 2), '%.')
 
-    draw_tree(forest, feature_list)
+    # draw_tree(forest, feature_list)
 
 
 def draw_tree(rf, feature_list):
@@ -161,11 +163,13 @@ def rand_forest_n_Fold():
     number_bin = 4  # in image description
     number_datasamples = 50
 
-    malaria_data = create_data_frame()
+    # malaria_data = create_data_frame()
 
-    labels = np.array(malaria_data['label'])
-    features = malaria_data.drop(columns=['label'], axis=1)
-    feature_list = list(features.columns)
+    # labels = np.array(malaria_data['label'])
+    # features = malaria_data.drop(columns=['label'], axis=1)
+
+    image, features, labels = load_image_data() 
+    feature_list = list(features)
     features = np.array(features)
 
     train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.5,
