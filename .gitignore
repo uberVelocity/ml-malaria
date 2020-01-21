@@ -1,4 +1,4 @@
 /cell_images/
 .idea
-.npy
-.npz
+*.npy
+*.npz
