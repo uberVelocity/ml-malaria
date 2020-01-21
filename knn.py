@@ -40,6 +40,9 @@ if __name__ == '__main__':
         accuracies.append(accuracy)
         stds.append(std)
 
+    # Show results
+    print(f"Accuracies: {accuracies}")
+    print(f"Standard Deviations: {stds}")
     best = int(np.where(accuracies == np.amax(accuracies))[0])
     print(f"Best K = {best + 2} with accuracy {accuracies[best]} ({stds[best]})")
 
