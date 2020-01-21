@@ -11,9 +11,9 @@ Collects images from folders and produces normalized dataset as .npy files.
 
 def load_image_data():
     # Wrapper for loading data
-    raw_images = np.load('raw_images.npy')
-    features = np.load('features.npy')
-    labels = np.load('labels.npy')
+    raw_images = np.load('raw_images.npz')
+    features = np.load('features.npz')
+    labels = np.load('labels.npz')
 
     return raw_images, features, labels
 
@@ -79,7 +79,7 @@ def extract_features():
     features = np.array(features)
     labels = np.array(labels)
 
-    np.save('raw_images.npy', raw_images)
-    np.save('features.npy', features)
-    np.save('labels.npy', labels)
-    print('Data stored in .npy files')
+    np.savez_compressed('raw_images.npz', raw_images)
+    np.savez_compressed('features.npz', features)
+    np.savez_compressed('labels.npz', labels)
+    print('Data stored in .npz files')
