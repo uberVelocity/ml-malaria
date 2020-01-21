@@ -27,15 +27,15 @@ def ten_folds_knn(k):
         score = knn.score(test_features, test_labels)
         scores.append(score)
     print("Cross validation done, results:")
-    print(f"Mean accuracy: {np.mean(scores)}, std: {np.std(scores)}")
+    print(f"Mean accuracy: {round(np.mean(scores)*100, 1)}, std: {round(np.std(scores)*100, 1)}")
 
-    return np.mean(scores), np.std(scores)
+    return round(np.mean(scores)*100, 1), round(np.std(scores)*100, 1)
 
 
 if __name__ == '__main__':
     accuracies = []
     stds = []
-    for k in range(8):
+    for k in range(9):
         accuracy, std = ten_folds_knn(k+2)
         accuracies.append(accuracy)
         stds.append(std)
