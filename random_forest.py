@@ -10,6 +10,11 @@ from sklearn.tree import export_graphviz
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 
+entries = os.environ["HOME"] + config.image_location
+parasitized_entries = os.listdir(entries + '/Parasitized')
+uninfected_entries = os.listdir(entries + '/Uninfected')
+number_bin = 4  # in image description
+number_datasamples = 50
 
 def image_descriptor(im):
     out_hist = []  # historgram
@@ -62,7 +67,7 @@ def create_data_frame():
     return out
 
 
-def train_random_forest(forest):
+def train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,forest):
     forest.fit(train_features, train_labels)
     predictions = forest.predict(test_features)
     errors = metrics.accuracy_score(test_labels, predictions)
@@ -77,7 +82,7 @@ def train_random_forest(forest):
 
 def draw_tree(rf, feature_list):
     # Pull out one tree from the forest
-    tree = rf.estimators_[5]
+    tree = rf.estimators_[0]
 
     export_graphviz(tree, out_file='tree.dot', feature_names=feature_list, rounded=True, precision=1)
     (graph,) = pydot.graph_from_dot_file('tree.dot')
@@ -86,64 +91,102 @@ def draw_tree(rf, feature_list):
     print('The depth of this tree is:', tree.tree_.max_depth)
 
 
-entries = os.environ["HOME"] + config.image_location
-parasitized_entries = os.listdir(entries + '/Parasitized')
-uninfected_entries = os.listdir(entries + '/Uninfected')
-number_bin = 4  # in image description
-number_datasamples = 50
+def rand_forest_one(): 
+    entries = os.environ["HOME"] + config.image_location
+    parasitized_entries = os.listdir(entries + '/Parasitized')
+    uninfected_entries = os.listdir(entries + '/Uninfected')
+    number_bin = 4  # in image description
+    number_datasamples = 50
 
-malaria_data = create_data_frame()
+    malaria_data = create_data_frame()
 
-labels = np.array(malaria_data['label'])
-features = malaria_data.drop(columns=['label'], axis=1)
-feature_list = list(features.columns)
-features = np.array(features)
+    labels = np.array(malaria_data['label'])
+    features = malaria_data.drop(columns=['label'], axis=1)
+    feature_list = list(features.columns)
+    features = np.array(features)
 
-train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.5,
-                                                                            random_state=21)
+    train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.5,
+                                                                                random_state=21)
 
-rf = RandomForestClassifier(n_estimators=100, random_state=42)
-train_random_forest(rf)
+    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    train_random_forest(rf)
 
-print("###########Smaller tree")
-rf_small = RandomForestClassifier(n_estimators=10, random_state=42)  # Limit depth of tree to 2 levels
-train_random_forest(rf_small)
+    print("###########Smaller tree")
+    rf_small = RandomForestClassifier(n_estimators=10, random_state=42)  # Limit depth of tree to 2 levels
+    train_random_forest(rf_small)
 
-print("###########Important features")
-# Get numerical feature importances
-importances = list(rf.feature_importances_)
+    print("###########Important features")
+    # Get numerical feature importances
+    importances = list(rf.feature_importances_)
 
-# List of tuples with variable and importance
-feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
+    # List of tuples with variable and importance
+    feature_importances = [(feature, round(importance, 2)) for feature, importance in zip(feature_list, importances)]
 
-# Sort the feature importances by most important first
-feature_importances = sorted(feature_importances, key=lambda x: x[1], reverse=True)
+    # Sort the feature importances by most important first
+    feature_importances = sorted(feature_importances, key=lambda x: x[1], reverse=True)
 
-# Print out the feature and importances 
-[print('Variable: {:20} Importance: {}'.format(*pair)) for pair in zip(range(5), feature_importances)]
+    # Print out the feature and importances 
+    [print('Variable: {:20} Importance: {}'.format(*pair)) for pair in zip(range(5), feature_importances)]
 
-# New random forest with only the two most important variables
-rf_most_important = RandomForestClassifier(n_estimators=10, random_state=42)
+    # New random forest with only the two most important variables
+    rf_most_important = RandomForestClassifier(n_estimators=10, random_state=42)
 
-# Extract the two most important features
-important_indices = [feature_list.index('hist_42'), feature_list.index('hist_43')]
-train_important = train_features[:, important_indices]
-test_important = test_features[:, important_indices]
+    # Extract the two most important features
+    important_indices = [feature_list.index('hist_42'), feature_list.index('hist_43')]
+    train_important = train_features[:, important_indices]
+    test_important = test_features[:, important_indices]
 
-# Train the random forest
-rf_most_important.fit(train_important, train_labels)
+    # Train the random forest
+    rf_most_important.fit(train_important, train_labels)
 
-# Make predictions and determine the error
-predictions = rf_most_important.predict(test_important)
+    # Make predictions and determine the error
+    predictions = rf_most_important.predict(test_important)
 
-errors = metrics.accuracy_score(test_labels, predictions)
+    errors = metrics.accuracy_score(test_labels, predictions)
 
-# Display the performance metrics
-print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
+    # Display the performance metrics
+    print('Mean Absolute Error:', round(np.mean(errors), 2), 'degrees.')
 
-mape = np.mean(100 * (errors / test_labels.shape[0]))
-accuracy = 100 - mape
+    mape = np.mean(100 * (errors / test_labels.shape[0]))
+    accuracy = 100 - mape
 
-print('Accuracy:', round(accuracy, 2), '%.')
+    print('Accuracy:', round(accuracy, 2), '%.')
 
-draw_tree(rf_most_important, important_indices)
+    draw_tree(rf_most_important, important_indices)
+
+def rand_forest_n_Fold(): 
+    entries = os.environ["HOME"] + config.image_location
+    parasitized_entries = os.listdir(entries + '/Parasitized')
+    uninfected_entries = os.listdir(entries + '/Uninfected')
+    number_bin = 4  # in image description
+    number_datasamples = 50
+
+    malaria_data = create_data_frame()
+
+    labels = np.array(malaria_data['label'])
+    features = malaria_data.drop(columns=['label'], axis=1)
+    feature_list = list(features.columns)
+    features = np.array(features)
+
+    train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=0.5,
+                                                                                random_state=21)
+    for n_estimationin in range(10): 
+        n = n_estimationin+1
+        n *=10
+        print("##### n estimation",n) 
+        rf = RandomForestClassifier(n_estimators=n, random_state=42)
+        train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,rf)
+    
+    #best setting 
+    rf = RandomForestClassifier(n_estimators=50, random_state=42)
+
+    for n_fold in range(10): 
+        n = n_fold+1
+        test_size_n = n/number_datasamples
+        print("##### test size", test_size_n)
+        train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=n,
+                                                                                random_state=21)
+        train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,rf)
+    
+
+rand_forest_n_Fold()
