@@ -32,7 +32,14 @@ def ten_folds_knn(k):
     return np.mean(scores), np.std(scores)
 
 
-results = [ten_folds_knn(k+2) for k in range(8)]
-print(results)
-print(f"Best K = {np.where(results == np.amax(results)) + 2}")
+if __name__ == '__main__':
+    accuracies = []
+    stds = []
+    for k in range(8):
+        accuracy, std = ten_folds_knn(k+2)
+        accuracies.append(accuracy)
+        stds.append(std)
+
+    best = int(np.where(accuracies == np.amax(accuracies))[0])
+    print(f"Best K = {best + 2} with accuracy {accuracies[best]} ({stds[best]})")
 
