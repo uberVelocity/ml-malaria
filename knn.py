@@ -1,35 +1,30 @@
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+import numpy as np
+
+from sklearn.model_selection import KFold
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import classification_report, confusion_matrix
-from data_processing_wrappers import load_images
+from data_wrappers import load_image_data
 
+_, features, labels = load_image_data()  # Images are not used, only features of images
+kf = KFold(n_splits=10, shuffle=True)  # Set values for K-Fold
 
-def feature_scaling(X_train, X_test):
-    scaler = StandardScaler()
-    scaler.fit(X_train)
+k_folds_iterator = 1
+scores = []
+# For each fold selected as test fold
+for train_index, test_index in kf.split(labels):
+    print(f"K Fold iteration {k_folds_iterator}")
+    k_folds_iterator += 1
 
-    X_train = scaler.transform(X_train)
-    X_test = scaler.transform(X_test)
+    # Get fold data
+    train_features, test_features = features[train_index], features[test_index]
+    train_labels, test_labels = labels[train_index], labels[test_index]
 
+    # Training classifier
+    knn = KNeighborsClassifier(2)
+    knn.fit(train_features, train_labels)
 
-if __name__ == '__main__':
-    print("Loading images...")
-    k = 2
-    images, labels = load_images()
-    x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.33, random_state=42)
-    print(f"Images loaded! x_train: f{len(x_train)}, x_test: f{len(x_test)}")
-    print(f"(y_train: {len(y_train)}, y_test: {len(y_test)})")
+    # Testing
+    score = knn.score(test_features, test_labels)
+    scores.append(score)
 
-    print("\n Creating classifier...")
-    classifier = KNeighborsClassifier(k)
-
-    print("Commencing training...")
-    classifier.fit(x_train, y_train)
-
-    print("Predicting...")
-    y_pred = classifier.predict(x_test)
-
-    print("Evaluating...")
-    print(confusion_matrix(y_test, y_pred))
-    print(classification_report(y_test, y_pred))
+print("Cross validation done, results:")
+print(f"Mean accuracy: {np.mean(scores)}, std: {np.std(scores)}")
