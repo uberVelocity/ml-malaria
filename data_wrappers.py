@@ -13,7 +13,7 @@ def load_image_data():
     # Wrapper for loading data
     try:
 
-        raw_images = np.load('raw_imagaes.npy')
+        raw_images = np.load('raw_images.npy')
         features = np.load('features.npy')
         labels = np.load('labels.npy')
 
