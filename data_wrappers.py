@@ -11,9 +11,14 @@ Collects images from folders and produces normalized dataset as .npy files.
 
 def load_image_data():
     # Wrapper for loading data
-    raw_images = np.load('raw_images.npy')
-    features = np.load('features.npy')
-    labels = np.load('labels.npy')
+    try:
+
+        raw_images = np.load('raw_imagaes.npy')
+        features = np.load('features.npy')
+        labels = np.load('labels.npy')
+
+    except FileNotFoundError:
+        raise FileNotFoundError("PLease run the create_data_storage.py script before trying to load the data!")
 
     return raw_images, features, labels
 
