@@ -55,4 +55,4 @@ if __name__ == '__main__':
         val_accuracy[i] = model.fit(x_train, y_train, epochs=10, batch_size=BATCH_SIZE,
                             validation_data=(x_test, y_test))
     print('validation accuracies: ', val_accuracy)
-    print('mean accuracy: ', mean(val_accuracy))
+    print('mean accuracy: ', np.mean(val_accuracy))
