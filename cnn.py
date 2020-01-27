@@ -1,11 +1,9 @@
-import os
 import numpy as np
 import config
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import datasets, layers, models
-from load_images import load_images
+from data_processing_wrappers import load_images
 
 
 def create_model():
@@ -35,8 +33,6 @@ def create_model():
 if __name__ == '__main__':
     print("Loading images...")
     images, labels = load_images()
-    # print(f"Images loaded! x_train: f{len(x_train)}, x_test: f{len(x_test)}")
-    # print(f"(y_train: {len(y_train)}, y_test: {len(y_test)})")
 
     n_folds = 10
     BATCH_SIZE = 128
@@ -51,8 +47,8 @@ if __name__ == '__main__':
         model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
         print("Compiling done! Commencing training...")
         
-        x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=0.1, random_state = i)
+        x_train, x_test, y_train, y_test = train_test_split(images, labels, test_size=1/n_folds, random_state=i)
         val_accuracy[i] = model.fit(x_train, y_train, epochs=10, batch_size=BATCH_SIZE,
-                            validation_data=(x_test, y_test))
+                                    validation_data=(x_test, y_test))
     print('validation accuracies: ', val_accuracy)
     print('mean accuracy: ', np.mean(val_accuracy))
