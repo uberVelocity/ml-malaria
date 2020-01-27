@@ -5,7 +5,7 @@ import config
 import data_wrappers 
 from data_wrappers import load_image_data
 import pandas as pd
-
+import matplotlib.pyplot as plt
 from PIL import Image
 from sklearn.model_selection import train_test_split
 from sklearn.tree import export_graphviz
@@ -170,13 +170,15 @@ def rand_forest_n_Fold():
 
     n_best=0
     acc =0
+    cost_test=[]
     for n_estimationin in range(10): 
         n = n_estimationin+1
         n *=100
         print("##### n estimation",n) 
-        rf = RandomForestClassifier(n_estimators=n, random_state=42)
+        rf = RandomForestClassifier(n_estimators=n, random_state=42, criterion="entropy")
         acc_i = train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,rf)
         tree = rf.estimators_[0]
+        cost_test.append(acc_i)
         print('The depth of this tree is:', tree.tree_.max_depth)
         if acc_i > acc:
             n_best = n 
@@ -191,11 +193,20 @@ def rand_forest_n_Fold():
     for n_fold in range(10): 
         test_size_n = (n_fold+1)/10 
         print("test size n", test_size_n)
-        rf = RandomForestClassifier(n_estimators=n_best, random_state=42)
+        rf = RandomForestClassifier(n_estimators=n_best, random_state=42, criterion = 'entropy')
         print("##### test size", test_size_n)
         train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=test_size_n,
                                                                                 random_state=42)
         train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,rf) 
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title('Test ='+str((int(10-split*10)/10.0))+' and Train ='+str(split)+' split, learning rate ='+str(lr))
+    ax.plot(cost_test, label ="Test") 
+    ax.set_xlabel('n estimator')
+    ax.set_ylabel("Cost") 
+    ax.legend()
+    plt.show()
 
 
 #rand_forest_one()
