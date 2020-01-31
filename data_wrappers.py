@@ -23,7 +23,7 @@ def load_image_data():
     return raw_images, features, labels
 
 
-def image_to_feature_vector(image, size=(32, 32)):
+def image_to_feature_vector(image, size=(100, 100)):
     # resize the image to a fixed size, then flatten the image into
     # a list of raw pixel intensities
     return cv2.resize(image, size).flatten()
