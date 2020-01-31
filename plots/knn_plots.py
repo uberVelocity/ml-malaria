@@ -13,13 +13,16 @@ data = {
 }
 
 if __name__ == '__main__':
+    # Plot data
     means = [value[0] for value in data.values()]
     stds = [value[1] for value in data.values()]
     plt.errorbar(data.keys(), means, stds, linestyle='None', marker='o')
 
+    # Set axes and title
     plt.title('Mean accuracy per K for KNN')
     plt.xlabel('K')
     plt.ylabel('Accuracy (%)')
 
+    # Save and show figure
     plt.savefig('knn_parametersweep.png')
     plt.show()
