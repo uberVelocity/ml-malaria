@@ -6,10 +6,16 @@ from data_wrappers import load_image_data
 
 
 def ten_folds_knn(k):
+    """
+    Performs 10_folds cross validation on KNN using the preprocessed dataset.
+    :param k: K hyper-parameter for number of neighbors considered in classification.
+    :return: Tuple containing mean and standard deviation
+    """
     _, features, labels = load_image_data()  # Images are not used, only features of images
     kf = KFold(n_splits=10, shuffle=True)  # Set values for K-Fold
     k_folds_iterator = 1
     scores = []
+
     # For each fold selected as test fold
     for train_index, test_index in kf.split(labels):
         print(f"{k} folds iteration {k_folds_iterator}")
@@ -32,11 +38,17 @@ def ten_folds_knn(k):
     return round(np.mean(scores)*100, 1), round(np.std(scores)*100, 1)
 
 
-if __name__ == '__main__':
+def find_optimal_k():
+    """
+    Function that finds optimal value of K in range [2, ..., 10]
+    :return: K values of highest accuracy KNN results
+    """
     accuracies = []
     stds = []
+
+    # For k in [2, ..., 10]
     for k in range(9):
-        accuracy, std = ten_folds_knn(k+2)
+        accuracy, std = ten_folds_knn(k + 2)
         accuracies.append(accuracy)
         stds.append(std)
 
@@ -46,3 +58,8 @@ if __name__ == '__main__':
     best = int(np.where(accuracies == np.amax(accuracies))[0])
     print(f"Best K = {best + 2} with accuracy {accuracies[best]} ({stds[best]})")
 
+    return best+2
+
+
+if __name__ == '__main__':
+    find_optimal_k()
