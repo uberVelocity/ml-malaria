@@ -66,6 +66,7 @@ def rand_forest_n_Fold():
     print('loaded feature shape:',features.shape)
     df = pd.DataFrame(features) 
     
+    #needs for drawing trees 
     feature_list = pd.Series(features[0])
     features = np.array(features)
 
@@ -97,7 +98,7 @@ def rand_forest_n_Fold():
     #best setting 
     print("best setting: n =", n_best)
     
-    rf = RandomForestClassifier( n_estimators=n_best, random_state=42, criterion ="entropy")
+    rf = RandomForestClassifier(n_estimators=n_best, random_state=42, criterion ="entropy")
     acc_i = train_random_forest(train_features, test_features, train_labels, test_labels,feature_list,rf)
     draw_tree(rf, feature_list, "Tree") 
  
@@ -116,10 +117,10 @@ def rand_forest_n_Fold():
     print("selected feature::::", train_selected_feature)
 
     #training on selected features only 
-    rf_important = RandomForestClassifier(n_estimators=n_best, random_state=42, criterion ="entropy")
+    rf_important = RandomForestClassifier(warm_start=True,n_estimators=n_best, random_state=42, oob_score=True,criterion ="entropy")
     acc , depth= train_random_forest(train_selected_feature, test_selected_feature, train_labels, test_labels, feature_list, rf_important) 
     feature_list= pd.Series(train_selected_feature[0])
-
+    print("RF traind from selected features OOB", rf_important.oob_score_) 
     draw_tree(rf_important, feature_list, "selectedTree") 
     draw_cost(estimations, oob_estimation , acc_estimation,  depth_list)
 
