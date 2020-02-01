@@ -73,8 +73,8 @@ if __name__ == '__main__':
                                 validation_data=(x_test, y_test))
 
     # Print validation accuracy scores
-    print('val_accuracy: ', val_accuracy.history['val_accuracy'])
+    # print('val_accuracy: ', val_accuracy.history['val_accuracy'])
 
     # Plot validation accuracy scores
-    plot_val_accuracies(val_accuracy.history['val_accuracy'])
-
+    # plot_val_accuracies(val_accuracy.history['val_accuracy'])
+    
