@@ -92,6 +92,8 @@ def rand_forest_n_fold():
     print("best setting: n =", n_best)
     
     rf = RandomForestClassifier(n_estimators=n_best, random_state=42, criterion="entropy")
+    acc_i, depth_tree = train_random_forest(train_features, test_features, train_labels, test_labels,
+                                                feature_list, rf)
     draw_tree(rf, feature_list, "Tree") 
  
     print("###########Important features")
