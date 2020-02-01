@@ -10,7 +10,7 @@ from sklearn import metrics
 from sklearn.feature_selection import SelectFromModel
 
 
-def train_random_forest(train_features, test_features, train_labels, test_labels, feature_list, forest):
+def train_random_forest(train_features, test_features, train_labels, test_labels, forest):
     forest.fit(train_features, train_labels)
     predictions = forest.predict(test_features)
     corrects = metrics.accuracy_score(test_labels, predictions, normalize=False)
@@ -32,7 +32,7 @@ def draw_tree(rf, feature_list, name):
     print(name+".png created")
 
 
-def draw_cost(estimations, oob_estimation, acc_estimation,  depth):
+def draw_cost(estimations, oob_estimation, acc_estimation):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.set_title('Test performance')
@@ -69,8 +69,7 @@ def rand_forest_n_fold():
     for estimation in estimations:
         print("##### n estimation", estimation)
         rf = RandomForestClassifier(warm_start=True, n_estimators=estimation, criterion="entropy", oob_score=True)
-        acc_i, depth_tree = train_random_forest(train_features, test_features, train_labels, test_labels,
-                                                feature_list, rf)
+        acc_i, depth_tree = train_random_forest(train_features, test_features, train_labels, test_labels, rf)
         print("OOB score (generalization accuracy?)", rf.oob_score_)
         oob_estimation.append(rf.oob_score_)
         acc_estimation.append(acc_i)
@@ -83,8 +82,7 @@ def rand_forest_n_fold():
     print("best setting: n =", n_best)
     
     rf = RandomForestClassifier(n_estimators=n_best, random_state=42, criterion="entropy")
-    acc_i, depth_tree = train_random_forest(train_features, test_features, train_labels, test_labels,
-                                                feature_list, rf)
+    train_random_forest(train_features, test_features, train_labels, test_labels, rf)
     draw_tree(rf, feature_list, "Tree") 
  
     print("###########Important features")
@@ -98,17 +96,18 @@ def rand_forest_n_fold():
 
     # reducing number of features in test and train
     train_selected_feature = sfm.transform(train_features)
+    test_selected_feature = sfm.transform(test_features)
     print("selected features shapes", train_selected_feature.shape)
     print("selected feature::::", train_selected_feature)
 
     # training on selected features only
     rf_important = RandomForestClassifier(warm_start=True, n_estimators=n_best, random_state=42, oob_score=True,
                                           criterion="entropy")
-    acc , depth = train_random_forest(train_selected_feature, test_selected_feature, train_labels, test_labels, feature_list, rf_important) 
+    train_random_forest(train_selected_feature, test_selected_feature, train_labels, test_labels, rf_important)
     feature_list = pd.Series(train_selected_feature[0])
     print("RF trained from selected features OOB", rf_important.oob_score_)
     draw_tree(rf_important, feature_list, "selectedTree") 
-    draw_cost(estimations, oob_estimation, acc_estimation,  depth_list)
+    draw_cost(estimations, oob_estimation, acc_estimation)
 
 
 rand_forest_n_fold()
