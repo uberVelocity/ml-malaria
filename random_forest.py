@@ -1,7 +1,5 @@
-import os
 import pydot
 import numpy as np
-import config
 import pandas as pd
 import matplotlib.pyplot as plt
 from data_wrappers import load_image_data
@@ -10,13 +8,6 @@ from sklearn.tree import export_graphviz
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import metrics
 from sklearn.feature_selection import SelectFromModel
-
-
-entries = os.environ["HOME"] + config.image_location
-parasitized_entries = os.listdir(entries + '/Parasitized')
-uninfected_entries = os.listdir(entries + '/Uninfected')
-number_bin = 4  # in image description
-number_datasamples = 50
 
 
 def train_random_forest(train_features, test_features, train_labels, test_labels, feature_list, forest):
