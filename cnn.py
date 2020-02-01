@@ -40,11 +40,23 @@ def plot_val_accuracies(val_accuracies):
 if __name__ == '__main__':
     # Load images
     print('Loading images...')
-    features, labels = data_wrappers.load_images()
+    features, temp, labels = data_wrappers.load_image_data()
 
     # Check images dimensions
+    features = np.reshape(features, (27558, 32, 32, 3))
     print(features.shape)
+
+    # Check correct int labels
+    if 'parasitized' in labels:
+        labels[labels == 'parasitized'] = 0
+    if 'uninfected' in labels:
+        labels[labels == 'uninfected'] = 1
+    labels = list(map(int, labels))
+    labels = np.array(labels)
     print(labels.shape)
+    print(type(labels))
+    print(type(labels[0]))
+    print(labels)
 
     # Create CNN model
     print('\n Creating model...')
@@ -59,7 +71,7 @@ if __name__ == '__main__':
     # Fit the model
     BATCH_SIZE = 128
     x_train, x_test, y_train, y_test = train_test_split(features, labels, test_size=1/3, random_state=42)
-    val_accuracy = model.fit(x_train, y_train, epochs=3,
+    val_accuracy = model.fit(x_train, y_train, epochs=10,
                                 validation_data=(x_test, y_test))
 
     # Print validation accuracy scores
