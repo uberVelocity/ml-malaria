@@ -46,17 +46,15 @@ if __name__ == '__main__':
     features = np.reshape(features, (27558, 32, 32, 3))
     print(features.shape)
 
-    # Check correct int labels
+    # Check correct int labels (tensorflow does not accept strings as classes)
     if 'parasitized' in labels:
         labels[labels == 'parasitized'] = 0
     if 'uninfected' in labels:
         labels[labels == 'uninfected'] = 1
+    # Convert strings to ints
     labels = list(map(int, labels))
     labels = np.array(labels)
     print(labels.shape)
-    print(type(labels))
-    print(type(labels[0]))
-    print(labels)
 
     # Create CNN model
     print('\n Creating model...')
