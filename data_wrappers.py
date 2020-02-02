@@ -13,7 +13,7 @@ def load_image_data():
     # Wrapper for loading data
     try:
 
-        raw_images = np.load('raw_images.npy')
+        raw_images = np.load('hsv_images.npy')
         features = np.load('features.npy')
         labels = np.load('labels.npy')
 
@@ -54,7 +54,7 @@ def extract_features():
     dataset_path = os.environ["HOME"] + config.image_location
     folders = os.listdir(dataset_path)
 
-    raw_images = []
+    hsv_images = []
     features = []
     labels = []
 
@@ -76,16 +76,16 @@ def extract_features():
                     hist = extract_color_histogram(image)
 
                     # Store in data collection
-                    raw_images.append(pixels)
+                    hsv_images.append(np.true_divide(pixels, 255))  # normalize raw images for cnn
                     features.append(hist)
                     labels.append(label)
 
     # Convert arrays for easier usage
-    raw_images = np.array(raw_images)
+    hsv_images = np.array(hsv_images)
     features = np.array(features)
     labels = np.array(labels)
 
-    np.save('raw_images.npy', raw_images)
+    np.save('hsv_images.npy', hsv_images)
     np.save('features.npy', features)
     np.save('labels.npy', labels)
     print('Data stored in .npy files')
