@@ -26,14 +26,15 @@ def load_image_data():
 def image_to_feature_vector(image, size=config.scaled_size):
     # resize the image to a fixed size, then flatten the image into
     # a list of raw pixel intensities
-    return cv2.resize(image, size).flatten()
+    image = cv2.resize(image, size)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    return image.flatten()
 
 
 def extract_color_histogram(image, bins=(8, 8, 8)):
     # extract a 3D color histogram from the HSV color space using
     # the supplied number of `bins` per channel
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    hist = cv2.calcHist([hsv], [0, 1, 2], None, bins,
+    hist = cv2.calcHist([image], [0, 1, 2], None, bins,
                         [0, 180, 0, 256, 0, 256])
 
     # handle normalizing the histogram if we are using OpenCV 2.4.X
