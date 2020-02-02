@@ -18,7 +18,7 @@ def load_image_data():
         labels = np.load('labels.npy')
 
     except FileNotFoundError:
-        raise FileNotFoundError("PLease run the create_data_storage.py script before trying to load the data!")
+        raise FileNotFoundError("PLease run the data_wrappers.py script before trying to load the data!")
 
     return raw_images, features, labels
 
@@ -88,3 +88,7 @@ def extract_features():
     np.save('features.npy', features)
     np.save('labels.npy', labels)
     print('Data stored in .npy files')
+
+
+if __name__ == '__main__':
+    extract_features()
