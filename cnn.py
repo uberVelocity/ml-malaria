@@ -1,35 +1,36 @@
 import numpy as np
 import config
 import data_wrappers
-import tensorflow as tf
 import matplotlib.pyplot as plt
 import sklearn.metrics as skmet
 
 from sklearn.model_selection import train_test_split
-from tensorflow.keras import datasets, layers, models
+from tensorflow.keras import layers, models
+
 
 def create_model():
     """
     Creates CNN with three convolutional layers and two output classes
     """
-    model = models.Sequential()
+    new_model = models.Sequential()
 
     # Convolutional layers
-    model.add(layers.Conv2D(32, (3, 3), activation='relu',
-                            input_shape=(config.scaled_size[1], config.scaled_size[0], 3)))
-    model.add(layers.MaxPooling2D(2, 2))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
-    model.add(layers.MaxPooling2D(2, 2))
-    model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    new_model.add(layers.Conv2D(32, (3, 3), activation='relu',
+                                input_shape=(config.scaled_size[1], config.scaled_size[0], 3)))
+    new_model.add(layers.MaxPooling2D(2, 2))
+    new_model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+    new_model.add(layers.MaxPooling2D(2, 2))
+    new_model.add(layers.Conv2D(64, (3, 3), activation='relu'))
 
     # Flatten the tensors and create Dense layers for classification
-    model.add(layers.Flatten())
-    model.add(layers.Dense(64, activation='relu'))
+    new_model.add(layers.Flatten())
+    new_model.add(layers.Dense(64, activation='relu'))
 
     # Output layer
-    model.add(layers.Dense(2, activation='softmax'))
+    new_model.add(layers.Dense(2, activation='softmax'))
 
-    return model
+    return new_model
+
 
 def plot_val_accuracies(val_accuracies):
     plt.plot(val_accuracies, '-o')
@@ -37,6 +38,7 @@ def plot_val_accuracies(val_accuracies):
     plt.xlabel('Epoch')
     plt.title('CNN Validation accuracy across 10 epochs')
     plt.show()
+
 
 if __name__ == '__main__':
     # Load images
@@ -109,5 +111,3 @@ if __name__ == '__main__':
     # Plot validation accuracy scores - Commented by default.
     # plot_val_accuracies(val_accuracy.history['val_accuracy'])
 
-    
-    

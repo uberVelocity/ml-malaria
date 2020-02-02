@@ -18,12 +18,12 @@ def load_image_data():
         labels = np.load('labels.npy')
 
     except FileNotFoundError:
-        raise FileNotFoundError("PLease run the create_data_storage.py script before trying to load the data!")
+        raise FileNotFoundError("PLease run the data_wrappers.py script before trying to load the data!")
 
     return raw_images, features, labels
 
 
-def image_to_feature_vector(image, size=(32, 32)):
+def image_to_feature_vector(image, size=config.scaled_size):
     # resize the image to a fixed size, then flatten the image into
     # a list of raw pixel intensities
     return cv2.resize(image, size).flatten()
@@ -87,4 +87,8 @@ def extract_features():
     np.save('raw_images.npy', raw_images)
     np.save('features.npy', features)
     np.save('labels.npy', labels)
-    print('Data stored in .npz files')
+    print('Data stored in .npy files')
+
+
+if __name__ == '__main__':
+    extract_features()
