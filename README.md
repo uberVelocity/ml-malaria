@@ -1,8 +1,10 @@
 # Malaria image recognition
-This project looks into Machine Learning approaches to detect Malaria in cells.
+This project looks into Machine Learning approaches to detect Malaria in red blood cells.
 
 ## Dependencies
-TODO
+For the image processing we use opencv, which can be installed from here: https://docs.opencv.org/4.2.0/df/d65/tutorial_table_of_content_introduction.html. 
+After installing opencv it is recommended one sets up a virtual python3.6+ environment and installs the dependencies using
+``pip3 install -r path/to/requirements.txt``.
 
 ## Dataset
 The dataset can be found here: https://www.kaggle.com/iarunava/cell-images-for-detecting-malaria/data
