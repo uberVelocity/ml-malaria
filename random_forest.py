@@ -16,11 +16,11 @@ def train_random_forest(train_features, test_features, train_labels, test_labels
     corrects = metrics.accuracy_score(test_labels, predictions, normalize=False)
     print('number of correct:', corrects)
     accuracy = (corrects / test_labels.shape[0])
+    print( "Confusion matrix", metrics.confusion_matrix(test_labels, predictions) ) 
     print('Accuracy:', accuracy)
-    tree = forest.estimators_[0]
-    print('The depth of this tree is:', tree.tree_.max_depth)
-
-    return accuracy, tree.tree_.max_depth
+    depth = average_depth(forest)
+    print("average depth trees in the forest: ", depth)
+    return accuracy, depth
 
 
 def draw_tree(rf, feature_list, name):
@@ -43,6 +43,12 @@ def draw_cost(estimations, oob_estimation, acc_estimation):
     ax.legend()
     plt.show()
 
+def average_depth(rf):
+    depth= 0 
+    for tree in rf.estimators_: 
+        depth += tree.tree_.max_depth 
+    
+    return depth/len(rf.estimators_)
 
 def rand_forest_n_fold():
     image, features, labels = load_image_data() 
