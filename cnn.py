@@ -3,6 +3,7 @@ import config
 import data_wrappers
 import matplotlib.pyplot as plt
 import sklearn.metrics as skmet
+import tensorflow as tf
 
 from sklearn.model_selection import train_test_split
 from tensorflow.keras import layers, models
