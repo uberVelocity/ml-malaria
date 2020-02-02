@@ -70,7 +70,7 @@ def rand_forest_n_fold():
         print("##### n estimation", estimation)
         rf = RandomForestClassifier(warm_start=True, n_estimators=estimation, criterion="entropy", oob_score=True)
         acc_i, depth_tree = train_random_forest(train_features, test_features, train_labels, test_labels, rf)
-        print("OOB score (generalization accuracy?)", rf.oob_score_)
+        print("OOB score: ", rf.oob_score_)
         oob_estimation.append(rf.oob_score_)
         acc_estimation.append(acc_i)
         depth_list.append(depth_tree)  
